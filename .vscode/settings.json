@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "thread": "cpp",
+        "string": "cpp",
+        "qmainwindow": "cpp",
+        "qstring": "cpp",
+        "qstackedwidget": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}
