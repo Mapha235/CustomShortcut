@@ -50,11 +50,11 @@ int main(int argc, char** argv)
     vibration.wLeftMotorSpeed = 30000;
     vibration.wRightMotorSpeed = 30000;
 
-    Gamepad gamepad(0);
     MediaController* media = new MediaController;
 
     DWORD dwResult;
     XINPUT_STATE state;
+    Gamepad gamepad(0, state);
 
     for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
         // Fills block of memory with zeros

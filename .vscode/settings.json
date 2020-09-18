@@ -5,7 +5,13 @@
         "string": "cpp",
         "qmainwindow": "cpp",
         "qstring": "cpp",
-        "qstackedwidget": "cpp"
+        "qstackedwidget": "cpp",
+        "*.rh": "cpp",
+        "vector": "cpp",
+        "chrono": "cpp",
+        "xhash": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

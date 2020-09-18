@@ -1,14 +1,17 @@
 #pragma once
+
 #include <QComboBox>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QString>
-#include <iostream>
+#include <QIcon>
 
+#include <iostream>
 #include <vector>
 
 // #include "Device.hpp"
@@ -20,13 +23,15 @@ public:
     static MainWindow* getInstance();
     void buttonHandler();
     void createLayout();
-    void getConnectedDevices();
     void initUI();
+    void getConnectedDevices();
 
-private slots:
+public slots:
+    void listen();
+    void deviceDisconnected(DWORD id);
 
 signals:
-    void newDevice(DWORD id);
+    // void newDevice(DWORD id);
 
 protected:
     void closeEvent(QCloseEvent* event) Q_DECL_OVERRIDE;
@@ -39,8 +44,9 @@ private:
     MainWindow& operator=(const MainWindow& other);
     ~MainWindow();
 
-    std::vector<Device*> devices;
-    QComboBox* device_list;
+    // std::vector<Device*> devices;
+    std::vector<Gamepad*> devices;
+    QGroupBox *device_box;
     QStackedWidget* scaffold;
     QWidget* main;
     QGridLayout* layout;
