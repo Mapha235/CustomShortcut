@@ -92,7 +92,7 @@ int main(int argc, char** argv)
         bool DPadD_button_pressed = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
         bool DPadU_button_pressed = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0;
 
-        if(state.Gamepad.wButtons != 0)
+        if (state.Gamepad.wButtons != 0)
             std::cout << state.Gamepad.wButtons << std::endl;
 
         if (gameMode) {
@@ -158,22 +158,27 @@ void openLocker()
 #include <QApplication>
 
 #include "mainwindow.hpp"
+#include <iostream>
+#include <vector>
+
+
+void temp()
+{
+    std::vector<DWORD> shortcuts_graph(16);
+}
 
 int main(int argc, char** argv)
 {
+    XINPUT_KEYSTROKE key;
+    // while (true) {
+    //     auto hh = XInputGetKeystroke(0, 0, &key);
+    //     if(key.VirtualKey != 0 && key.Flags != XINPUT_KEYSTROKE_KEYDOWN )
+    //         std::cout << key.VirtualKey << std::endl;
+    // }
+
     QApplication app(argc, argv);
-    // QWidget *window = new QWidget;
-    // window->show();
-
-    // QPushButton hello("Hello world!", 0);
-    // hello.resize(100, 30);
-
-    // std::cout << "HELLO WORLD" << std::endl;
-
-    // hello.show();
 
     MainWindow* window = MainWindow::getInstance();
-    // window.createLayout();
     window->show();
     return app.exec();
 }

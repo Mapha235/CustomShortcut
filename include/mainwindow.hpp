@@ -1,40 +1,57 @@
 #pragma once
 
-#include <QComboBox>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QPushButton>
+#include <QStackedLayout>
 #include <QStackedWidget>
-#include <QString>
-#include <QIcon>
 
 #include <iostream>
 #include <vector>
 
 // #include "Device.hpp"
+#include "CustomShortcut.hpp"
+#include "InputManager.hpp"
 #include "gamepad.hpp"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
+    enum SaveFormat {
+        Json,
+        Binary
+    };
+
     static MainWindow* getInstance();
     void buttonHandler();
     void createLayout();
     void initUI();
     void getConnectedDevices();
 
+    void createDeviceBoxLayout();
+    void createShortcutsBoxLayout();
+    /*  This functions creates a layout for the groupbox that shows the 
+        shortcuts of the currently shown device.*/
+    void DeviceBoxHandler();
+
+    void read(const QJsonObject& json);
+    void write(QJsonObject& json) const;
+    /* Saves the shortcuts into a file (json or binary).*/
+    bool save(SaveFormat format) const;
+    bool load(SaveFormat format);
+
 public slots:
-    void listen();
+    void openNewShortcutWindow();
     void deviceDisconnected(DWORD id);
-
-signals:
-    // void newDevice(DWORD id);
-
-protected:
-    void closeEvent(QCloseEvent* event) Q_DECL_OVERRIDE;
+    void addShortcut(CustomShortcut* shortcut);
+    void showShortcuts(unsigned int id);
+    
+    //TODO
+    void toTray();
 
 private:
     MainWindow();
@@ -45,10 +62,17 @@ private:
     ~MainWindow();
 
     // std::vector<Device*> devices;
-    std::vector<Gamepad*> devices;
-    QGroupBox *device_box;
-    QStackedWidget* scaffold;
-    QWidget* main;
-    QGridLayout* layout;
-    QPushButton* add_button;
+    InputManager* m_manager;
+    std::vector<Gamepad*> m_devices;
+    QGroupBox* m_device_box;
+    QGroupBox* m_shortcuts_box;
+    QStackedLayout* m_shortcuts_box_layout;
+    QStackedWidget* m_scaffold;
+    QWidget* m_main;
+    QGridLayout* m_layout;
+    QPushButton* m_add_btn;
+    QPushButton* m_toTray_btn;
+
+    DWORD m_current_device_index;
+    int m_shortcuts_count;
 };

@@ -1,0 +1,14 @@
+{
+    "gamepads": [
+        {
+            "name": "Gamepad 0",
+            "shortcuts": [
+            ]
+        },
+        {
+            "name": "Gamepad 1",
+            "shortcuts": [
+            ]
+        }
+    ]
+}

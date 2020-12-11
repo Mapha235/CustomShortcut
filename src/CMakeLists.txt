@@ -27,7 +27,7 @@ file(GLOB SRC
 # )
 
 
-
+set(CMAKE_PREFIX_PATH "C:/Dependencies/Qt/5.15.1/msvc2019/")
 # find includes in the corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # run moc automatically
@@ -51,6 +51,7 @@ message("Looking for Qt...")
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Gui REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
 if (${Qt5_FOUND})
     message("Found Qt " ${Qt5_VERSION})
 else()
@@ -82,7 +83,7 @@ add_executable(
 # install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
 add_library(xinput 
-    xinput.h
+    User32
     ${SRC}
     )
 
@@ -92,6 +93,7 @@ target_link_libraries(
     Qt5::Widgets
     Qt5::Core
     Qt5::Gui
+    Qt5::Multimedia
 )
 
 # target_link_libraries(GamepadInput)
