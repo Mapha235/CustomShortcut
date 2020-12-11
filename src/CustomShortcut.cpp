@@ -123,12 +123,12 @@ void CustomShortcut::change_btn_seq(std::vector<DWORD> seq)
 void CustomShortcut::execute()
 {
     QProcess process;
-    bool success;
+    bool success(false);
 
     if (m_type == Action::VolumeControl) {
         // This function pointer is defined inside MediaController.cpp
-        void (*mediaFctPtr[])() = { multimedia::PlayPause, multimedia::NextTrack, multimedia::PrevTrack, multimedia::VolumeDown, multimedia::VolumeUp, multimedia::Mute };
-        mediaFctPtr[m_media_type]();
+        bool (*mediaFctPtr[])() = { multimedia::PlayPause, multimedia::NextTrack, multimedia::PrevTrack, multimedia::VolumeDown, multimedia::VolumeUp, multimedia::Mute };
+        success = mediaFctPtr[m_media_type]();
 
     } else if (m_type == Action::Process) {
         success = process.startDetached("\"" + m_command + "\"");

@@ -10,7 +10,7 @@
 
 static bool SystemVolumeIsMute = false;
 namespace {
-void MultimediaControls(int hex_code)
+bool MultimediaControls(int hex_code)
 {
     INPUT inputs[2];
     ZeroMemory(inputs, sizeof(inputs));
@@ -25,48 +25,54 @@ void MultimediaControls(int hex_code)
     UINT uSent = SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
     if (uSent != ARRAYSIZE(inputs)) {
         // OutputString(L"SendInput failed: 0x%x\n", HRESULT_FROM_WIN32(GetLastError()));
+        return false;
     }
+    return true;
 }
 }
 
 namespace multimedia {
-void PlayPause()
+bool PlayPause()
 {
-    MultimediaControls(VK_MEDIA_PLAY_PAUSE);
+    return MultimediaControls(VK_MEDIA_PLAY_PAUSE);
 }
-void NextTrack()
+bool NextTrack()
 {
-    MultimediaControls(VK_MEDIA_NEXT_TRACK);
+    return MultimediaControls(VK_MEDIA_NEXT_TRACK);
 }
-void PrevTrack()
+bool PrevTrack()
 {
-    MultimediaControls(VK_MEDIA_PREV_TRACK);
+    return MultimediaControls(VK_MEDIA_PREV_TRACK);
 }
-void VolumeDown()
+bool VolumeDown()
 {
     QProcess process;
 
-    if (!process.startDetached("nircmd mutesysvolume 0")) {
+    if (process.startDetached("nircmd mutesysvolume 0")) {
         double v = 655.35 * (-2);
         std::string command = "nircmd changesysvolume ";
         command.append(std::to_string(v));
         process.startDetached(command.c_str());
+
+        return true;
     } else
-        MultimediaControls(VK_VOLUME_DOWN);
+        return MultimediaControls(VK_VOLUME_DOWN);
 }
-void VolumeUp()
+bool VolumeUp()
 {
     QProcess process;
 
-    if (!process.startDetached("nircmd mutesysvolume 0")) {
+    if (process.startDetached("nircmd mutesysvolume 0")) {
         double v = 655.35 * (2);
         std::string command = "nircmd changesysvolume ";
         command.append(std::to_string(v));
         process.startDetached(command.c_str());
+        
+        return true;
     } else
-        MultimediaControls(VK_VOLUME_UP);
+        return MultimediaControls(VK_VOLUME_UP);
 }
-void Mute()
+bool Mute()
 {
     QProcess process;
 
@@ -74,12 +80,12 @@ void Mute()
     std::cout << SystemVolumeIsMute << std::endl;
     std::string command = "nircmd mutesysvolume ";
     command.append(std::to_string(SystemVolumeIsMute));
-    if (!process.startDetached(command.c_str())) {
+    if (process.startDetached(command.c_str())) {
+        return true;
     } else {
-        std::cerr << "Mute failed." << std::endl;
-        MultimediaControls(VK_VOLUME_MUTE);
+        return MultimediaControls(VK_VOLUME_MUTE);
     }
 }
 }
 using namespace multimedia;
-void (*mediaFctPtr[])() = { PlayPause, NextTrack, PrevTrack, VolumeDown, VolumeUp, Mute };
+bool (*mediaFctPtr[])() = { PlayPause, NextTrack, PrevTrack, VolumeDown, VolumeUp, Mute };
