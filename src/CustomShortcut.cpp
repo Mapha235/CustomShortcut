@@ -43,20 +43,12 @@ CustomShortcut::CustomShortcut(const int owner_id, const Action type, const std:
     , m_btn_seq(btn_seq)
     , m_media_type(-1)
 {
-
-    // QSizePolicy square = m_delete_btn->sizePolicy();
-    // square.setWidthForHeight(true);
-    // m_delete_btn->setSizePolicy(square);
-
     initUI();
     buttonHandler();
-
-    // connect(m_delete_btn, &QPushButton::clicked, this, &CustomShortcut::listen);
 }
 
 CustomShortcut::~CustomShortcut()
 {
-    // delete m_id;
     delete m_action_type;
     delete m_btn_seq_line;
     delete m_command_line;
@@ -66,7 +58,6 @@ CustomShortcut::~CustomShortcut()
 
 void CustomShortcut::initUI()
 {
-    // this->setAttribute(Qt::WA_DeleteOnClose);
     QString l_btn_seq_text;
 
     for (const auto& btn : m_btn_seq) {
@@ -75,18 +66,14 @@ void CustomShortcut::initUI()
             l_btn_seq_text += " + ";
     }
 
-    // m_id = new QLabel(QString::number(nr).append("."));
     m_action_type = new QLineEdit("Hotkey");
     m_btn_seq_line = new QLineEdit(l_btn_seq_text);
     m_command_line = new QLineEdit();
     m_delete_btn = new QPushButton("x");
 
-    m_delete_btn->setFixedSize(QSize(20, 45));
+    m_delete_btn->setFixedSize(QSize(20, 50));
 
-    // m_layout = new QHBoxLayout(this);
     m_layout = new QGridLayout(this);
-    // m_layout->addWidget(m_id);
-    // m_layout->addWidget(m_action_type);
     m_layout->addWidget(m_btn_seq_line, 0, 0, 1, 5);
     m_layout->addWidget(m_command_line, 1, 0, 1, 5);
     m_layout->addWidget(m_delete_btn, 0, 5, 2, 1);
@@ -104,14 +91,12 @@ void CustomShortcut::initUI()
 
 void CustomShortcut::closeThis()
 {
-    // this->close();
     emit delete_signal(m_id);
     this->close();
 }
 
 void CustomShortcut::buttonHandler()
 {
-    // connect(m_delete_btn, &QPushButton::clicked, [=] { emit delete_signal(getNumber()); });
     connect(m_delete_btn, &QPushButton::clicked, this, &CustomShortcut::closeThis);
 }
 
@@ -280,8 +265,6 @@ void CustomShortcut::read(const QJsonObject& json)
         m_btn_seq_line->setText(l_btn_seq_text);
         m_threshold = std::accumulate(m_btn_seq.begin(), m_btn_seq.end(), 0);
     }
-    // initUI();
-    // buttonHandler();
 }
 
 void CustomShortcut::write(QJsonObject& json) const

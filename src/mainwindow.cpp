@@ -16,15 +16,12 @@ MainWindow::MainWindow()
     , m_shortcuts_count(0)
 {
     QSize size = QDesktopWidget().availableGeometry(this).size() * 0.3;
-    // resize(size.transposed());
-    // resize(size.height() * 1.2, size.width() * 0.8);
     this->setFixedSize(size.height() * 1.2, size.width() * 0.8);
 
     m_manager = new InputManager(0);
     getConnectedDevices();
     m_manager->startListener();
 
-    // m_devices = new Device*[XUSER_MAX_COUNT + 1];
     m_scaffold = new QStackedWidget;
     m_main = new QWidget;
     m_add_btn = new QPushButton("+");
@@ -32,14 +29,10 @@ MainWindow::MainWindow()
     m_device_box = new QGroupBox("Devices");
     m_device_box->setAlignment(Qt::AlignHCenter);
 
-    // m_toTray_btn = new QPushButton("To Tray", m_main);
-
     createDeviceBoxLayout();
     m_device_box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // m_shortcuts_box_layout = new QVBoxLayout;
     m_shortcuts_box_layout = new QStackedLayout;
-    // showShortcuts(getCurrentDeviceID());
     m_shortcuts_box = new QGroupBox;
     m_shortcuts_box->setAlignment(Qt::AlignHCenter);
     m_shortcuts_box->setFlat(true);
@@ -54,24 +47,19 @@ MainWindow::MainWindow()
     } else
         m_shortcuts_box->setTitle("Shortcuts");
 
-
-    // connect(m_toTray_btn, &QPushButton::clicked, this, &MainWindow::toTray);
-
     buttonHandler();
 
     // create the m_main m_layout for the m_main window
     m_layout = new QGridLayout;
 
-    // m_layout->addWidget(m_toTray_btn, 0, 0, 1, 1);
     m_layout->addWidget(m_device_box, 0, 0, 1, 5);
     m_layout->addWidget(m_shortcuts_box, 2, 0, 4, 5);
     m_layout->addWidget(m_add_btn, 6, 0, 1, 5);
 
-    m_main->setLayout(m_layout);
+    m_main->setLayout(m_layout);    
     m_scaffold->addWidget(m_main);
     setCentralWidget(m_scaffold);
 
-    // getConnectedm_devices();
     load(Json);
     for (auto device : m_devices) {
         m_shortcuts_count += device->getShortcuts().size();
@@ -89,21 +77,15 @@ MainWindow::~MainWindow()
     save(Json);
 
     delete m_manager;
-    // delete m_toTray_btn;
     delete m_add_btn;
     delete m_device_box;
     delete m_shortcuts_box_layout;
     delete m_shortcuts_box;
 
     delete m_layout;
-    // delete m_main;
     delete m_scaffold;
 
-    // for (auto device : m_devices) {
-    //     delete device;
-    // }
     m_devices.clear();
-    // delete m_device_box;
 }
 
 void MainWindow::initUI()
@@ -144,7 +126,6 @@ void MainWindow::showShortcuts(unsigned int index)
         QString title("Shortcuts - ");
         title.append(m_devices.at(index)->getName());
         m_shortcuts_box->setTitle(title);
-        // m_shortcuts_box_layout->setCurrentIndex(id);
         m_shortcuts_box_layout->setCurrentWidget(m_devices.at(index)->getShortcutsBox());
 
     } catch (const std::exception& e) {
@@ -178,37 +159,17 @@ void MainWindow::getConnectedDevices()
         ZeroMemory(&state, sizeof(XINPUT_STATE));
         // Controller is connected
         if (dwResult == ERROR_SUCCESS) {
-            // Gamepad* gamepad = new Gamepad(i, m_devices.size(), state);
             m_devices.push_back(new Gamepad(i, m_devices.size(), state));
-            // connect(gamepad, gamepad.disconnected())
-            // auto gamepad = *(m_devices.end() - 1);
-            // connect(gamepad, &Gamepad::disconnected, this, &MainWindow::deviceDisconnected);
             m_manager->addDevice(*(m_devices.end() - 1));
-        } else {
-            // break;
         }
     }
 }
 
 void MainWindow::openNewShortcutWindow()
 {
-    // int id = m_devices.at(m_current_device_index)->getID();
     CreateShortcutWindow* window = new CreateShortcutWindow(m_devices.at(m_current_device_index)->getID());
-    // m_devices.at(m_current_device_index)->vibrate(25000);
 
-    // pauses listening to inputs from all gamepads and
-    // m_manager->stopListener();
-    // connects the gamepads to a signal signaling when to continue the listener
     connect(window, &CreateShortcutWindow::resultReady, this, &MainWindow::addShortcut);
-    // connect(window, &CreateShortcutWindow::closed, [=]{m_manager->startListener();});
-
-    for (auto device : m_devices) {
-        auto l_shortcuts = device->getShortcuts();
-        for (auto shortcut : l_shortcuts) {
-            // qDebug() << shortcut->getID();
-        }
-    }
-
     window->show();
 }
 
@@ -221,7 +182,6 @@ void MainWindow::deviceDisconnected(DWORD id)
 void MainWindow::addShortcut(CustomShortcut* shortcut)
 {
     try {
-        // std::cout << m_shortcuts_count << std::endl;
         shortcut->setID(m_shortcuts_count);
 
         m_shortcuts_count++;
@@ -230,21 +190,17 @@ void MainWindow::addShortcut(CustomShortcut* shortcut)
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
     }
-
-    // m_shortcuts_box_layout->addWidget(s);
 }
 
 void MainWindow::read(const QJsonObject& json)
 {
     if (json.contains("gamepads") && json["gamepads"].isArray()) {
         QJsonArray l_gamepadArray = json["gamepads"].toArray();
-        // m_devices.clear();
-        // m_devices.reserve(l_gamepadArray.size());
+
         for (int i = 0; i < m_devices.size(); ++i) {
             if (i < l_gamepadArray.size()) {
                 QJsonObject gamepadObject = l_gamepadArray[i].toObject();
                 m_devices[i]->read(gamepadObject);
-                // m_devices.push_back(device);
             }
         }
     }
@@ -252,10 +208,6 @@ void MainWindow::read(const QJsonObject& json)
 
 void MainWindow::write(QJsonObject& json) const
 {
-    // QJsonObject l_deviceObject;
-    // device.write(l_deviceObject);
-    // json["device"] = l_deviceObject;
-
     QJsonArray l_m_devicesArray;
     for (auto device : m_devices) {
         QJsonObject l_deviceObject;
@@ -303,11 +255,7 @@ bool MainWindow::load(SaveFormat format)
             : QJsonDocument(QCborValue::fromCbor(saveData).toMap().toJsonObject()));
 
     read(loadDoc.object());
-
-    // QTextStream(stdout) << "Loaded save for "
-    //                     << loadDoc["player"]["name"].toString()
-    //                     << " using "
-    //                     << (saveFormat != Json ? "CBOR" : "JSON") << "...\n";
+    
     return true;
 }
 

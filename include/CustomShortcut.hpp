@@ -62,9 +62,6 @@ public:
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
-
-protected:
-    // bool eventFilter(QObject *obj, QEvent *event) override;
 signals:
     void delete_signal(unsigned int nr);
 
