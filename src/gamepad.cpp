@@ -35,9 +35,6 @@ Gamepad::Gamepad(DWORD id, unsigned int index, XINPUT_STATE s)
     // makes the groupbox containing the m_shortcuts scrollable
     m_shortcuts_box->setWidgetResizable(true);
     m_shortcuts_box->setWidget(temp_shortcuts_box);
-
-    // listener = new QTimer(this);
-    // listener->start(1);
 }
 
 Gamepad::~Gamepad()
@@ -108,7 +105,6 @@ void Gamepad::vibrate(int MotorSpeed)
     XInputSetState(m_controllerID, &vibration);
     while (std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() != 300) {
         end = std::chrono::system_clock::now();
-        // std::cout << "Time is" << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << " second" << std::endl;
     }
     vibration.wLeftMotorSpeed = 0;
     vibration.wRightMotorSpeed = 0;
@@ -136,7 +132,6 @@ void Gamepad::newShortcut(CustomShortcut* shortcut)
 
     m_shortcuts.push_back(shortcut);
     m_layout->addWidget(shortcut);
-    // qDebug() << m_shortcuts.size();
 }
 void Gamepad::setShortcut(int index, CustomShortcut* shortcut)
 {
@@ -145,7 +140,6 @@ void Gamepad::setShortcut(int index, CustomShortcut* shortcut)
 
 void Gamepad::removeShortcut(unsigned int id)
 {
-    // m_shortcuts.erase(std::remove(m_shortcuts.begin(), m_shortcuts.end(), m_shortcuts.at(id)), m_shortcuts.end());
     auto it = std::find_if(m_shortcuts.begin(), m_shortcuts.end(), [=](CustomShortcut* t1) { return t1->getID() == id; });
     if (it != m_shortcuts.end()) {
         m_shortcuts.erase(it);

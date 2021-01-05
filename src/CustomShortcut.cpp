@@ -151,14 +151,12 @@ void CustomShortcut::checkButtonOrder(std::vector<DWORD>& btns_status)
                     if (m_exec_condition < m_btn_seq.size() + 1) // this is not really necessary. This just ensures that m_exec_condition does not increment infinitely.
                         m_exec_condition++;
                     pred_btn_order = btns_status.at(temp);
-                    // pred_btn_order += 1;
                 } else {
                     m_exec_condition = 0;
                     pred_btn_order = 0;
                     break;
                 }
             } catch (const std::exception& e) {
-                // std::cerr << e.what() << '\n';
                 std::cerr << "log2 fehlgeschlagen. Fehlerhafter button wurde registriert." << '\n';
             }
         }
@@ -167,7 +165,6 @@ void CustomShortcut::checkButtonOrder(std::vector<DWORD>& btns_status)
     }
 
     if (m_exec_condition == m_btn_seq.size()) {
-        // QFuture<void> future = QtConcurrent::run(execute);
         execute();
     }
 }

@@ -32,13 +32,11 @@ InputManager::~InputManager()
 void InputManager::operate()
 {
     for (auto device : devices) {
-        // QThread thread;
         updateStatus(device);
         checkShortcuts(device);
     }
 }
 
-//TODO: Multithreading i.e. one thread for every device
 std::vector<DWORD> InputManager::updateStatus(Device* device)
 {
     unsigned int controllerIndex = device->getIndex();
@@ -74,18 +72,12 @@ std::vector<DWORD> InputManager::updateStatus(Device* device)
         std::cerr << e.what() << '\n';
     }
 
-    // for (int i = 0; i < btns_status[0].size(); ++i) {
-    //     std::cout << btns_status[0]at(i) << " ";
-    //     if (i == btns_status[0].size() - 1)
-    //         std::cout << '\n';
-    // }
     return btns_status.at(device->getIndex());
 }
 
 void InputManager::checkShortcuts(Device* device)
 {
     auto& shortcuts = device->getShortcuts();
-    // for (auto shortcut : shortcuts) {
     for (int i = 0; i < shortcuts.size(); ++i) {
         if (device->getInput() >= shortcuts[i]->minThreshold()) {
             try {
@@ -97,7 +89,6 @@ void InputManager::checkShortcuts(Device* device)
         } else {
             shortcuts[i]->resetCondition();
         }
-        // std::cout << device->getInput() << " " << shortcut->minThreshold() << std::endl;
     }
 }
 

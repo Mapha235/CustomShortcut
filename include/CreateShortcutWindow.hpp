@@ -43,9 +43,6 @@ public slots:
     int translateButtons();
     void closeWindow();
 
-protected:
-    void keyPressEvent(QKeyEvent* key);
-
 private:
     // UI members
     QGridLayout* m_layout;
@@ -65,7 +62,7 @@ private:
     QTimer* m_listener;
     std::vector<DWORD> m_btn_seq;
     DWORD m_btn;
-    //TODO use m_deqe
+    //TODO use m_deque
     std::vector<bool> m_already_pressed_btns;
     QString command;
 };

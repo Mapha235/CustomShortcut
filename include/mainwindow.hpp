@@ -61,7 +61,6 @@ private:
     MainWindow& operator=(const MainWindow& other);
     ~MainWindow();
 
-    // std::vector<Device*> devices;
     InputManager* m_manager;
     std::vector<Gamepad*> m_devices;
     QGroupBox* m_device_box;

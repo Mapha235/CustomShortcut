@@ -9,7 +9,6 @@
 #include "RightClickableButton.hpp"
 #include "device.hpp"
 
-// #include <QObject>
 #include <QScrollArea>
 
 #include <QTimer>
@@ -58,9 +57,6 @@ signals:
     void buttonPressed(WORD button_code);
     void disconnected(DWORD id);
     void operate();
-
-protected:
-    // bool eventFilter(QObject* obj, QEvent* event) override;
 
 private:
     QString m_name;

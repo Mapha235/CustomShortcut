@@ -72,7 +72,6 @@ CreateShortcutWindow::CreateShortcutWindow(DWORD device_id, QWidget* parent, Qt:
 void CreateShortcutWindow::signalHandler()
 {
     connect(m_add_btn, &QPushButton::clicked, this, &CreateShortcutWindow::bundleResults);
-    // connect(m_cancel_btn, &QPushButton::clicked, this, &QWidget::close);
     connect(m_cancel_btn, &QPushButton::clicked, this, &QWidget::close);
     connect(m_action_type_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged),
         [=](int index) { m_shortcut_details->setCurrentIndex(index); });
@@ -86,8 +85,6 @@ CreateShortcutWindow::~CreateShortcutWindow()
     delete m_action_type_dropdown;
     delete m_gamepad_btn_seq;
     delete m_shortcut_details;
-    // delete m_device;
-    // delete m_file_dialog_btn;
     delete m_listener;
 }
 
@@ -245,10 +242,5 @@ void CreateShortcutWindow::closeWindow()
     this->close();
 }
 
-void CreateShortcutWindow::keyPressEvent(QKeyEvent* key)
-{
-    // if (m_action->hasFocus())
-    //     m_action->setText(QString(static_cast<char>(key->key())));
-}
 
 #include "moc_CreateShortcutWindow.cpp"
