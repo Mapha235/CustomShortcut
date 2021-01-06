@@ -17,6 +17,7 @@
 #include "CustomShortcut.hpp"
 #include "InputManager.hpp"
 #include "gamepad.hpp"
+#include "Profiles.hpp"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -47,7 +48,7 @@ public:
 public slots:
     void openNewShortcutWindow();
     void deviceDisconnected(DWORD id);
-    void addShortcut(CustomShortcut* shortcut);
+    void addShortcut(CustomShortcut* shortcut); 
     void showShortcuts(unsigned int id);
     
     //TODO
@@ -71,6 +72,7 @@ private:
     QGridLayout* m_layout;
     QPushButton* m_add_btn;
     QPushButton* m_toTray_btn;
+    Profiles* m_profiles;
 
     DWORD m_current_device_index;
     int m_shortcuts_count;

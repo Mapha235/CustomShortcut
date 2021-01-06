@@ -16,7 +16,7 @@ MainWindow::MainWindow()
     , m_shortcuts_count(0)
 {
     QSize size = QDesktopWidget().availableGeometry(this).size() * 0.3;
-    this->setFixedSize(size.height() * 1.2, size.width() * 0.8);
+    this->setFixedSize(size.height() * 1.3, size.width() * 0.9);
 
     m_manager = new InputManager(0);
     getConnectedDevices();
@@ -49,16 +49,23 @@ MainWindow::MainWindow()
 
     buttonHandler();
 
+    m_profiles = new Profiles;
+    // connect(m_profiles, &Profiles::)
+    m_profiles->setMaximumWidth(40);
+
     // create the m_main m_layout for the m_main window
     m_layout = new QGridLayout;
 
-    m_layout->addWidget(m_device_box, 0, 0, 1, 5);
-    m_layout->addWidget(m_shortcuts_box, 2, 0, 4, 5);
-    m_layout->addWidget(m_add_btn, 6, 0, 1, 5);
+    m_layout->addWidget(m_device_box, 0, 0, 1, 3);
+    m_layout->addWidget(m_profiles, 1, 0, 2, 1);
+    m_layout->addWidget(m_shortcuts_box, 1, 1, 1, 2);
+    // m_layout->addWidget(m_add_btn, 0, 2, 1, 1);
+    m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
 
     m_main->setLayout(m_layout);    
     m_scaffold->addWidget(m_main);
     setCentralWidget(m_scaffold);
+
 
     load(Json);
     for (auto device : m_devices) {

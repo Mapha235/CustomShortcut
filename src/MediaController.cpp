@@ -87,5 +87,3 @@ bool Mute()
     }
 }
 }
-using namespace multimedia;
-bool (*mediaFctPtr[])() = { PlayPause, NextTrack, PrevTrack, VolumeDown, VolumeUp, Mute };
