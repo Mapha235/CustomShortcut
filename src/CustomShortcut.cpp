@@ -119,6 +119,7 @@ void CustomShortcut::execute()
         success = process.startDetached("\"" + m_command + "\"");
         // if (QProcess::execute(m_command_line->text()) == -2) {
     } else if (m_type == Action::TerminalCommand) {
+        m_command.replace("/", "\\");
         success = process.startDetached(m_command);
     }
     if (!success) {

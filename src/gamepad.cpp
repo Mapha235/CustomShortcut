@@ -176,7 +176,6 @@ void Gamepad::write(QJsonObject& json) const
 {
     json["name"] = m_name;
     QJsonArray l_shortcuts_array;
-    std::cout << m_shortcuts.size() << std::endl;
 
     for (auto shortcut : m_shortcuts) {
         QJsonObject l_shortcutObj;

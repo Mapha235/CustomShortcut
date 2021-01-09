@@ -25,6 +25,9 @@ MainWindow::MainWindow()
     m_scaffold = new QStackedWidget;
     m_main = new QWidget;
     m_add_btn = new QPushButton("+");
+    // m_add_btn->setMaximumWidth(40);
+    m_save_btn = new QPushButton("Save");
+    m_save_btn->setMaximumWidth(40);
 
     m_device_box = new QGroupBox("Devices");
     m_device_box->setAlignment(Qt::AlignHCenter);
@@ -50,7 +53,9 @@ MainWindow::MainWindow()
     buttonHandler();
 
     m_profiles = new Profiles;
-    // connect(m_profiles, &Profiles::)
+    // connect(m_profiles, &Profiles::profileChanged, this, &QMainWindow::load);
+    connect(m_save_btn, &QPushButton::clicked, m_profiles, &Profiles::changeToSaveMode);
+
     m_profiles->setMaximumWidth(40);
 
     // create the m_main m_layout for the m_main window
@@ -59,7 +64,8 @@ MainWindow::MainWindow()
     m_layout->addWidget(m_device_box, 0, 0, 1, 3);
     m_layout->addWidget(m_profiles, 1, 0, 2, 1);
     m_layout->addWidget(m_shortcuts_box, 1, 1, 1, 2);
-    // m_layout->addWidget(m_add_btn, 0, 2, 1, 1);
+    m_layout->addWidget(m_save_btn, 3, 0, 1, 1);
+    // m_layout->addWidget(m_add_btn, 1, 3, 3, 1);
     m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
 
     m_main->setLayout(m_layout);    
@@ -67,7 +73,7 @@ MainWindow::MainWindow()
     setCentralWidget(m_scaffold);
 
 
-    load(Json);
+    load(QString("save.json"));
     for (auto device : m_devices) {
         m_shortcuts_count += device->getShortcuts().size();
     }
@@ -81,7 +87,7 @@ MainWindow* MainWindow::getInstance()
 
 MainWindow::~MainWindow()
 {
-    save(Json);
+    save(QString("save.json"));
 
     delete m_manager;
     delete m_add_btn;
@@ -224,11 +230,9 @@ void MainWindow::write(QJsonObject& json) const
     json["gamepads"] = l_m_devicesArray;
 }
 
-bool MainWindow::save(SaveFormat format) const
+bool MainWindow::save(QString& file_name) const
 {
-    QFile saveFile(format == Json
-            ? QStringLiteral("save.json")
-            : QStringLiteral("save.dat"));
+    QFile saveFile(QStringLiteral("save.json"));
 
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open save file.");
@@ -237,18 +241,14 @@ bool MainWindow::save(SaveFormat format) const
 
     QJsonObject saveObject;
     write(saveObject);
-    saveFile.write(format == Json
-            ? QJsonDocument(saveObject).toJson()
-            : QCborValue::fromJsonValue(saveObject).toCbor());
+    saveFile.write(QJsonDocument(saveObject).toJson());
 
     return true;
 }
 
-bool MainWindow::load(SaveFormat format)
+bool MainWindow::load(QString& file_name)
 {
-    QFile loadFile(format == Json
-            ? QStringLiteral("save.json")
-            : QStringLiteral("save.dat"));
+    QFile loadFile(QStringLiteral("save.json"));
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open save file.");
@@ -257,9 +257,7 @@ bool MainWindow::load(SaveFormat format)
 
     QByteArray saveData = loadFile.readAll();
 
-    QJsonDocument loadDoc(format == Json
-            ? QJsonDocument::fromJson(saveData)
-            : QJsonDocument(QCborValue::fromCbor(saveData).toMap().toJsonObject()));
+    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
 
     read(loadDoc.object());
     

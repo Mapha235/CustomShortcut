@@ -22,11 +22,6 @@
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
-    enum SaveFormat {
-        Json,
-        Binary
-    };
-
     static MainWindow* getInstance();
     void buttonHandler();
     void createLayout();
@@ -42,8 +37,8 @@ public:
     void read(const QJsonObject& json);
     void write(QJsonObject& json) const;
     /* Saves the shortcuts into a file (json or binary).*/
-    bool save(SaveFormat format) const;
-    bool load(SaveFormat format);
+    bool save(QString& file_name) const;
+    bool load(QString& file_name);
 
 public slots:
     void openNewShortcutWindow();
@@ -73,7 +68,8 @@ private:
     QPushButton* m_add_btn;
     QPushButton* m_toTray_btn;
     Profiles* m_profiles;
-
+    QPushButton* m_save_btn;
+    
     DWORD m_current_device_index;
     int m_shortcuts_count;
 };
