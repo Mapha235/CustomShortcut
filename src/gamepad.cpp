@@ -147,8 +147,19 @@ void Gamepad::removeShortcut(unsigned int id)
     qDebug() << m_shortcuts.size();
 }
 
+void Gamepad::clearShortcuts()
+{
+    for (auto shortcut : m_shortcuts) {
+        delete shortcut;
+    }
+    m_shortcuts.clear();
+}
+
 void Gamepad::read(const QJsonObject& json)
 {
+    // Necessary for loading another profile during runtime.
+    clearShortcuts();
+
     if (json.contains("name") && json["name"].isString())
         m_name = json["name"].toString();
 

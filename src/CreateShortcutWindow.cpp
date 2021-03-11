@@ -110,7 +110,7 @@ void CreateShortcutWindow::initShortcutDetails()
     m_media->addItem("Mute Volume");
 
     m_shortcut_details = new QStackedWidget;
-    m_file_dialog_btn = new QPushButton("Click to select a file", m_media);
+    m_file_dialog_btn = new QPushButton("Open File Explorer", m_media);
     
     // m_file_dialog_btn->setFixedHeight(50);
     connect(m_file_dialog_btn, &QPushButton::clicked, this, &CreateShortcutWindow::openFileDialog);

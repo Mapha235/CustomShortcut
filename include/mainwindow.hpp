@@ -34,17 +34,22 @@ public:
         shortcuts of the currently shown device.*/
     void DeviceBoxHandler();
 
+    /* */
     void read(const QJsonObject& json);
     void write(QJsonObject& json) const;
+    bool saveState() const;
     /* Saves the shortcuts into a file (json or binary).*/
     bool save(QString& file_name) const;
     bool load(QString& file_name);
+    /* @param profile_id: 1 <= profile_id <= 5 */
+    void changeProfile(unsigned int profile_id);
 
 public slots:
     void openNewShortcutWindow();
     void deviceDisconnected(DWORD id);
     void addShortcut(CustomShortcut* shortcut); 
     void showShortcuts(unsigned int id);
+
     
     //TODO
     void toTray();
@@ -72,4 +77,5 @@ private:
     
     DWORD m_current_device_index;
     int m_shortcuts_count;
+    int m_current_profile;
 };

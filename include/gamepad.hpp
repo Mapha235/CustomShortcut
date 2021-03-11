@@ -45,6 +45,7 @@ public:
 
     void setShortcut(int index, CustomShortcut* shortcut);
     void removeShortcut(unsigned int id) override;
+    void clearShortcuts();
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

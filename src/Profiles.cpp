@@ -46,10 +46,10 @@ void Profiles::initUI()
 
     int i = 0;
     for (const auto profile : m_profiles) {
-        if(!m_profile_used[i])
-            profile->setEnabled(false);
+        if (!m_profile_used[i])
+            // profile->setEnabled(false);
 
-        layout->addWidget(profile, i, 0);
+            layout->addWidget(profile, i, 0);
         i++;
     }
 
@@ -66,24 +66,45 @@ void Profiles::signalHandler()
 
 void Profiles::changeProfile(unsigned int profile_id)
 {
+    // QString l_file_name("profile");
+    // l_file_name.append(QString::number(profile_id));
+    // l_file_name.append(QString(".json"));
+    m_profiles[profile_id - 1]->setStyleSheet("QPushButton {color: #00BFFF; font-weight: bold}");
+    for (int i = 0; i < 5; ++i) {
+        if (i != profile_id - 1)
+            m_profiles[i]->setStyleSheet("QPushButton {color: black;}");
+    }
+    emit profileChanged(profile_id);
+    // qDebug() << profile_id;
+}
+
+void Profiles::enableBtn(unsigned int nr)
+{
+    m_profiles[nr - 1]->setEnabled(true);
+}
+
+void Profiles::saveProfile(unsigned int profile_id)
+{
+    qDebug() << "Saved to: " << profile_id;
+    m_profile_used[profile_id - 1] = true;
+
+    for (unsigned int i = 0; i < 5; ++i) {
+        // if (!m_profile_used[i])
+        //     m_profiles[i]->setEnabled(false);
+        m_profiles[i]->disconnect();
+        // changeProfile(profile_id);
+        
+        m_profiles[profile_id - 1]->setStyleSheet("QPushButton {color: #00BFFF; font-weight: bold}");
+
+        if (i != profile_id - 1)
+            m_profiles[i]->setStyleSheet("QPushButton {color: black;}");
+
+        connect(m_profiles[i], &QPushButton::clicked, [&, i]() { changeProfile(i + 1); });
+    }
     QString l_file_name("profile");
     l_file_name.append(QString::number(profile_id));
     l_file_name.append(QString(".json"));
-    // emit profileChanged(l_file_name);
-    qDebug() << profile_id;
-}
-
-bool Profiles::saveProfile(unsigned int profile_id)
-{
-    qDebug() << "Saved to: " << profile_id;
-    m_profile_used[profile_id] = true;
-    
-    for(unsigned int i = 0; i < 5; ++i){
-        if(!m_profile_used[i])
-            m_profiles[i]->setEnabled(false);
-    }
-
-    return false;
+    emit newProfile(l_file_name);
 }
 
 bool Profiles::loadProfile(unsigned int profile_id)
@@ -106,15 +127,22 @@ void Profiles::changeToSaveMode()
     m_is_save_mode = true;
 
     bool ok;
-    for (auto profile : m_profiles) {
-        profile->setEnabled(true);
-        profile->disconnect();
-        int l_id = profile->text().toInt(&ok) - 1;
+    for (unsigned int i = 0; i < m_profiles.size(); ++i) {
+        // profile->setEnabled(true);
+        m_profiles[i]->setStyleSheet("QPushButton {color: black;}");
+
+        // if (m_profile_used[i])
+        //     m_profiles[i]->setStyleSheet("QPushButton {color: red; font-weight: bold;}");
+        // else
+        //     m_profiles[i]->setStyleSheet("QPushButton {color: forestgreen; font-weight: bold;}");
+
+        m_profiles[i]->disconnect();
+        int l_id = m_profiles[i]->text().toInt(&ok);
 
         if (!ok)
             qDebug() << "QString to Int Conversion failed.";
-        
-        connect(profile, &QPushButton::clicked, [=]() { saveProfile(l_id); });
+
+        connect(m_profiles[i], &QPushButton::clicked, [=]() { saveProfile(l_id); });
     }
 }
 

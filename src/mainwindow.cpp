@@ -14,6 +14,7 @@
 MainWindow::MainWindow()
     : m_current_device_index(0)
     , m_shortcuts_count(0)
+    , m_current_profile(-1)
 {
     QSize size = QDesktopWidget().availableGeometry(this).size() * 0.3;
     this->setFixedSize(size.height() * 1.3, size.width() * 0.9);
@@ -55,6 +56,8 @@ MainWindow::MainWindow()
     m_profiles = new Profiles;
     // connect(m_profiles, &Profiles::profileChanged, this, &QMainWindow::load);
     connect(m_save_btn, &QPushButton::clicked, m_profiles, &Profiles::changeToSaveMode);
+    connect(m_profiles, &Profiles::profileChanged, this, &MainWindow::changeProfile);
+    connect(m_profiles, &Profiles::newProfile, this, &MainWindow::save);
 
     m_profiles->setMaximumWidth(40);
 
@@ -68,12 +71,14 @@ MainWindow::MainWindow()
     // m_layout->addWidget(m_add_btn, 1, 3, 3, 1);
     m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
 
-    m_main->setLayout(m_layout);    
+    m_main->setLayout(m_layout);
     m_scaffold->addWidget(m_main);
     setCentralWidget(m_scaffold);
 
-
     load(QString("save.json"));
+    // load(QString("profile").append(QString::number(m_current_profile).append(QString(".json"))));
+    m_profiles->changeProfile(m_current_profile);
+
     for (auto device : m_devices) {
         m_shortcuts_count += device->getShortcuts().size();
     }
@@ -87,7 +92,7 @@ MainWindow* MainWindow::getInstance()
 
 MainWindow::~MainWindow()
 {
-    save(QString("save.json"));
+    saveState();
 
     delete m_manager;
     delete m_add_btn;
@@ -109,8 +114,8 @@ void MainWindow::createLayout()
 {
 }
 
-void MainWindow::toTray(){
-
+void MainWindow::toTray()
+{
 }
 
 void MainWindow::createDeviceBoxLayout()
@@ -230,15 +235,28 @@ void MainWindow::write(QJsonObject& json) const
     json["gamepads"] = l_m_devicesArray;
 }
 
-bool MainWindow::save(QString& file_name) const
-{
-    QFile saveFile(QStringLiteral("save.json"));
+bool MainWindow::saveState() const { 
+    QFile saveFile("save.json");
 
     if (!saveFile.open(QIODevice::WriteOnly)) {
         qWarning("Couldn't open save file.");
         return false;
     }
+    QJsonObject saveObject;
+    saveObject["profile"] = m_current_profile;
+    saveFile.write(QJsonDocument(saveObject).toJson());
 
+    return true;
+}
+
+bool MainWindow::save(QString& file_name) const
+{
+    QFile saveFile(file_name);
+
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        qWarning("Couldn't open save file.");
+        return false;
+    }
     QJsonObject saveObject;
     write(saveObject);
     saveFile.write(QJsonDocument(saveObject).toJson());
@@ -248,10 +266,10 @@ bool MainWindow::save(QString& file_name) const
 
 bool MainWindow::load(QString& file_name)
 {
-    QFile loadFile(QStringLiteral("save.json"));
+    QFile loadFile(file_name);
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open save file.");
+        qWarning() << "Couldn't load " << file_name << ".";
         return false;
     }
 
@@ -259,9 +277,38 @@ bool MainWindow::load(QString& file_name)
 
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
 
-    read(loadDoc.object());
-    
+    if (m_current_profile < 0) {
+        QJsonObject save = loadDoc.object();
+        if (save.contains("profile") && save["profile"].isDouble())
+            m_current_profile = save["profile"].toInt();
+    } else {
+        // for (int i = 0; i < 5; ++i) {
+        //     if (QFile::exists(QString("profile").append(QString::number(i + 1).append(QString(".json"))))) {
+
+        //         m_profiles->enableBtn(i + 1);
+        //     }
+        // }
+        read(loadDoc.object());
+    }
+
     return true;
+}
+
+void MainWindow::changeProfile(unsigned int profile_id)
+{
+    // if (m_current_profile == profile_id)
+    //     return;
+    // else {
+    m_current_profile = profile_id;
+
+    QString l_file_name("profile");
+    l_file_name.append(QString::number(profile_id));
+    l_file_name.append(QString(".json"));
+
+    m_devices[m_current_device_index]->clearShortcuts();
+
+    load(l_file_name);
+    // }
 }
 
 #include "moc_mainwindow.cpp"
