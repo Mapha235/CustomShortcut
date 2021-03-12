@@ -226,14 +226,14 @@ void CreateShortcutWindow::bundleResults()
 
 void CreateShortcutWindow::openFileDialog()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open File",
+    QString l_fileName = QFileDialog::getOpenFileName(this, "Open File",
         "/home",
         "Executables (*.exe)");
-    if (fileName != "") {
-        QStringList split_fileName = fileName.split("/");
-        m_file_dialog_btn->setText(*(split_fileName.end() - 1));
+    if (l_fileName != "") {
+        QStringList l_split_fileName = l_fileName.split("/");
+        m_file_dialog_btn->setText(*(l_split_fileName.end() - 1));
     }
-    command = fileName;
+    command = l_fileName;
 }
 
 void CreateShortcutWindow::closeWindow()

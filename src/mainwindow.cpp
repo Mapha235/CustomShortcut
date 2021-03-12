@@ -6,6 +6,7 @@
 #include <QCborMap>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -15,6 +16,7 @@ MainWindow::MainWindow()
     : m_current_device_index(0)
     , m_shortcuts_count(0)
     , m_current_profile(-1)
+    , m_cwd(QDir::currentPath())
 {
     QSize size = QDesktopWidget().availableGeometry(this).size() * 0.3;
     this->setFixedSize(size.height() * 1.3, size.width() * 0.9);
@@ -235,7 +237,9 @@ void MainWindow::write(QJsonObject& json) const
     json["gamepads"] = l_m_devicesArray;
 }
 
-bool MainWindow::saveState() const { 
+bool MainWindow::saveState() const
+{
+    QDir::setCurrent(m_cwd);
     QFile saveFile("save.json");
 
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -251,6 +255,7 @@ bool MainWindow::saveState() const {
 
 bool MainWindow::save(QString& file_name) const
 {
+    QDir::setCurrent(m_cwd);
     QFile saveFile(file_name);
 
     if (!saveFile.open(QIODevice::WriteOnly)) {
@@ -266,6 +271,7 @@ bool MainWindow::save(QString& file_name) const
 
 bool MainWindow::load(QString& file_name)
 {
+    QDir::setCurrent(m_cwd);
     QFile loadFile(file_name);
 
     if (!loadFile.open(QIODevice::ReadOnly)) {

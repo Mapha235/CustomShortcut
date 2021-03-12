@@ -4,6 +4,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -111,12 +112,18 @@ void CustomShortcut::execute()
     bool success(false);
 
     if (m_type == Action::VolumeControl) {
-        // This function pointer is defined inside MediaController.cpp
         bool (*mediaFctPtr[])() = { multimedia::PlayPause, multimedia::NextTrack, multimedia::PrevTrack, multimedia::VolumeDown, multimedia::VolumeUp, multimedia::Mute };
         success = mediaFctPtr[m_media_type]();
 
     } else if (m_type == Action::Process) {
+        int l_truncated_index = m_command.lastIndexOf('/');
+        auto l_path = m_command;
+        l_path.truncate(l_truncated_index);
+
+        QDir::setCurrent(l_path);
         success = process.startDetached("\"" + m_command + "\"");
+        qDebug() << QDir::currentPath();
+
         // if (QProcess::execute(m_command_line->text()) == -2) {
     } else if (m_type == Action::TerminalCommand) {
         m_command.replace("/", "\\");

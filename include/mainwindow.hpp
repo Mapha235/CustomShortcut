@@ -78,4 +78,5 @@ private:
     DWORD m_current_device_index;
     int m_shortcuts_count;
     int m_current_profile;
+    QString m_cwd;
 };

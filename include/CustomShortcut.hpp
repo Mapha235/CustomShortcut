@@ -71,6 +71,7 @@ public slots:
 
 private:
     //UI members
+
     unsigned int m_id;
     DWORD m_owner_id;
     QGridLayout* m_layout;
@@ -80,6 +81,7 @@ private:
     QPushButton* m_delete_btn;
 
     // functional m_members
+
     Action m_type;
     QString m_command;
     /* Only used if this shortcut is mapped to a multimedia command.*/
