@@ -29,8 +29,6 @@ MainWindow::MainWindow()
     m_main = new QWidget;
     m_add_btn = new QPushButton("+");
     // m_add_btn->setMaximumWidth(40);
-    m_save_btn = new QPushButton("Save");
-    m_save_btn->setMaximumWidth(40);
 
     m_device_box = new QGroupBox("Devices");
     m_device_box->setAlignment(Qt::AlignHCenter);
@@ -57,7 +55,6 @@ MainWindow::MainWindow()
 
     m_profiles = new Profiles;
     // connect(m_profiles, &Profiles::profileChanged, this, &QMainWindow::load);
-    connect(m_save_btn, &QPushButton::clicked, m_profiles, &Profiles::changeToSaveMode);
     connect(m_profiles, &Profiles::profileChanged, this, &MainWindow::changeProfile);
     connect(m_profiles, &Profiles::newProfile, this, &MainWindow::save);
 
@@ -69,7 +66,7 @@ MainWindow::MainWindow()
     m_layout->addWidget(m_device_box, 0, 0, 1, 3);
     m_layout->addWidget(m_profiles, 1, 0, 2, 1);
     m_layout->addWidget(m_shortcuts_box, 1, 1, 1, 2);
-    m_layout->addWidget(m_save_btn, 3, 0, 1, 1);
+    m_layout->addWidget(m_profiles->getSaveButton(), 3, 0, 1, 1);
     // m_layout->addWidget(m_add_btn, 1, 3, 3, 1);
     m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
 
@@ -247,7 +244,7 @@ bool MainWindow::saveState() const
         return false;
     }
     QJsonObject saveObject;
-    saveObject["profile"] = m_current_profile;
+    saveObject["profile"] = m_current_profile + 1;
     saveFile.write(QJsonDocument(saveObject).toJson());
 
     return true;
@@ -285,15 +282,13 @@ bool MainWindow::load(QString& file_name)
 
     if (m_current_profile < 0) {
         QJsonObject save = loadDoc.object();
-        if (save.contains("profile") && save["profile"].isDouble())
-            m_current_profile = save["profile"].toInt();
-    } else {
-        // for (int i = 0; i < 5; ++i) {
-        //     if (QFile::exists(QString("profile").append(QString::number(i + 1).append(QString(".json"))))) {
+        if (save.contains("profile") && save["profile"].isDouble()) {
+            m_current_profile = save["profile"].toInt() - 1;
 
-        //         m_profiles->enableBtn(i + 1);
-        //     }
-        // }
+            if(m_current_profile < 1 || m_current_profile > 4)
+                m_current_profile = 0;
+        }
+    } else {
         read(loadDoc.object());
     }
 
@@ -308,7 +303,7 @@ void MainWindow::changeProfile(unsigned int profile_id)
     m_current_profile = profile_id;
 
     QString l_file_name("profile");
-    l_file_name.append(QString::number(profile_id));
+    l_file_name.append(QString::number(profile_id + 1));
     l_file_name.append(QString(".json"));
 
     m_devices[m_current_device_index]->clearShortcuts();

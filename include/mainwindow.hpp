@@ -41,7 +41,7 @@ public:
     /* Saves the shortcuts into a file (json or binary).*/
     bool save(QString& file_name) const;
     bool load(QString& file_name);
-    /* @param profile_id: 1 <= profile_id <= 5 */
+    /* @param profile_id: 0 <= profile_id <= 4 */
     void changeProfile(unsigned int profile_id);
 
 public slots:
@@ -73,7 +73,6 @@ private:
     QPushButton* m_add_btn;
     QPushButton* m_toTray_btn;
     Profiles* m_profiles;
-    QPushButton* m_save_btn;
     
     DWORD m_current_device_index;
     int m_shortcuts_count;
