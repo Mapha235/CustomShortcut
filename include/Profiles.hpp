@@ -28,17 +28,17 @@ signals:
     void newProfile(QString& file_name);
 
 public slots:
-    /* @param profile_id: 0 <= profile_id <= 4 */
-    void saveProfile(unsigned int profile_id);
-    /* @param profile_id: 0 <= profile_id <= 4 */
-    bool loadProfile(unsigned int profile_id);
-    /* @param profile_id: 0 <= profile_id <= 4 */
-    void changeProfile(unsigned int profile_id);
 
+    void handleProfile(unsigned int profile_id);
     /* Changes the behavior of the buttons when clicked. 
        Clicking a buttons will map a new save file to the clicked button or cancel saving.*/
     void changeMode();
 
+private slots:
+    /* @param profile_id: 0 <= profile_id <= 4 */
+    void saveProfile(unsigned int profile_id);
+    /* @param profile_id: 0 <= profile_id <= 4 */
+    void loadProfile(unsigned int profile_id);
 
 private:
     std::vector<QPushButton*> m_profiles;

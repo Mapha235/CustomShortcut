@@ -59,7 +59,7 @@ void Profiles::initUI()
 void Profiles::signalHandler()
 {
     for (unsigned int i = 0; i < 5; ++i) {
-        connect(m_profiles[i], &QPushButton::clicked, [&, i]() { changeProfile(i); });
+        connect(m_profiles[i], &QPushButton::clicked, [&, i]() { handleProfile(i); });
     }
     connect(m_save_btn, &QPushButton::clicked, this, &Profiles::changeMode);
 }
@@ -68,7 +68,7 @@ void Profiles::setCurrentProfile(int profile_id)
 {
     if (m_current_profile != profile_id) {
         m_current_profile = profile_id;
-        // changeProfile();
+        // loadProfile();
     }
 }
 
@@ -97,73 +97,52 @@ QPushButton* Profiles::getSaveButton()
 
 void Profiles::saveProfile(unsigned int profile_id)
 {
-    qDebug() << "Saved to: " << profile_id;
-
-    m_profile_used[profile_id] = true;
-
-    for (unsigned int i = 0; i < 5; ++i) {
-        m_profiles[i]->disconnect();
-
-        // highlight(profile_id, QString("#00BFFF"));
-        // highlight(profile_id, QString("#4169e1"));
-
-        if (i != profile_id)
-            setDefaultColor(i);
-
-        connect(m_profiles[i], &QPushButton::clicked, [&, i]() { changeProfile(i); });
-    }
+    qDebug() << "Saved to: " << profile_id + 1;
     QString l_file_name("profile");
-    l_file_name.append(QString::number(profile_id+1));
+    l_file_name.append(QString::number(profile_id + 1));
     l_file_name.append(QString(".json"));
     emit newProfile(l_file_name);
 }
 
-bool Profiles::loadProfile(unsigned int profile_id)
+void Profiles::loadProfile(unsigned int profile_id)
 {
-    QString l_file_name("profile");
-    l_file_name.append(QString::number(profile_id+1));
-    l_file_name.append(QString(".json"));
-
-    QFile loadFile(l_file_name);
-
-    if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open save file.");
-        return false;
-    }
-    return false;
+    highlight(profile_id, QString("black"));
+    emit profileChanged(profile_id);
 }
 
-void Profiles::changeProfile(unsigned int profile_id)
+void Profiles::handleProfile(unsigned int profile_id)
 {
-    // m_profiles[profile_id]->setStyleSheet("QPushButton {color: black; font-weight: bold; text-decoration: overline underline;}");
-    highlight(profile_id, QString("black"));
-    // m_profiles[m_current_profile - 1]->setStyleSheet("QPushButton {color: black;}");
+    if (m_is_save_mode) {
+        for (int i = 0; i < 5; ++i) {
+            if (i != profile_id)
+                setDefaultColor(i);
+        }
+        m_is_save_mode = false;
 
-    for (int i = 0; i < 5; ++i) {
-        if (i != profile_id)
-            setDefaultColor(i);
+        m_save_btn->setText("Save");
+
+        saveProfile(profile_id);
+    } else {
+        setDefaultColor(m_current_profile);
+        loadProfile(profile_id);
     }
-
     m_current_profile = profile_id;
-
-    emit profileChanged(profile_id);
 }
 
 void Profiles::changeMode()
 {
     m_is_save_mode = !m_is_save_mode;
-    if (m_is_save_mode)
+    if (m_is_save_mode) {
         m_save_btn->setText("Cancel");
-    else {
+        for (unsigned int i = 0; i < m_profiles.size(); ++i) {
+            highlight(i, QString("black"));
+        }
+    } else {
         m_save_btn->setText("Save");
-    }
-
-    for (unsigned int i = 0; i < m_profiles.size(); ++i) {
-
-        highlight(i, QString("black"));
-        m_profiles[i]->disconnect();
-
-        connect(m_profiles[i], &QPushButton::clicked, [&, i]() { saveProfile(i); });
+        for (unsigned int i = 0; i < m_profiles.size(); ++i) {
+            if (i != m_current_profile)
+                setDefaultColor(i);
+        }
     }
 }
 

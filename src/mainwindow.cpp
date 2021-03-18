@@ -76,7 +76,7 @@ MainWindow::MainWindow()
 
     load(QString("save.json"));
     // load(QString("profile").append(QString::number(m_current_profile).append(QString(".json"))));
-    m_profiles->changeProfile(m_current_profile);
+    m_profiles->handleProfile(m_current_profile);
 
     for (auto device : m_devices) {
         m_shortcuts_count += device->getShortcuts().size();
@@ -284,6 +284,7 @@ bool MainWindow::load(QString& file_name)
         QJsonObject save = loadDoc.object();
         if (save.contains("profile") && save["profile"].isDouble()) {
             m_current_profile = save["profile"].toInt() - 1;
+            m_profiles->setCurrentProfile(m_current_profile);
 
             if(m_current_profile < 1 || m_current_profile > 4)
                 m_current_profile = 0;
