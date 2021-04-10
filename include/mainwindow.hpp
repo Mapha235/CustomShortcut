@@ -26,7 +26,7 @@ public:
     void buttonHandler();
     void createLayout();
     void initUI();
-    void getConnectedDevices();
+    bool getConnectedDevices();
 
     void createDeviceBoxLayout();
     void createShortcutsBoxLayout();
@@ -37,6 +37,8 @@ public:
     /* */
     void read(const QJsonObject& json);
     void write(QJsonObject& json) const;
+    /*Saves the previously used profile when the program closes to "save.json".
+      If the file does not exist, a new one will be created.*/
     bool saveState() const;
     /* Saves the shortcuts into a file (json or binary).*/
     bool save(QString& file_name) const;
@@ -74,8 +76,7 @@ private:
     QPushButton* m_toTray_btn;
     Profiles* m_profiles;
     
-    DWORD m_current_device_index;
+    int m_current_device_index;
     int m_shortcuts_count;
-    int m_current_profile;
     QString m_cwd;
 };

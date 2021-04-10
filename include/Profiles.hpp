@@ -43,10 +43,11 @@ private slots:
 private:
     std::vector<QPushButton*> m_profiles;
     std::vector<bool> m_profile_used;
+
     QPushButton* m_save_btn;
 
     bool m_is_highlighted;
     bool m_is_save_mode;
-    /* 1 <= m_current_profile <= 5 */
+    /* 0 <= m_current_profile <= 4 */
     int m_current_profile;
 };

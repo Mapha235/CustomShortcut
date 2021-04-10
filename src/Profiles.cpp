@@ -9,7 +9,7 @@
 Profiles::Profiles()
     : m_is_save_mode(false)
     , m_is_highlighted(false)
-    , m_current_profile(-1)
+    , m_current_profile(0)
 {
     this->setTitle(QString("Profiles"));
     this->setAlignment(Qt::AlignHCenter);
@@ -24,6 +24,7 @@ Profiles::Profiles()
     for (int i = 0; i < 5; ++i) {
         m_profiles.push_back(new QPushButton(QString::number(i + 1)));
         m_profile_used.push_back(false);
+        m_profiles[i]->setContextMenuPolicy(Qt::CustomContextMenu);
     }
 
     initUI();
@@ -98,7 +99,7 @@ QPushButton* Profiles::getSaveButton()
 void Profiles::saveProfile(unsigned int profile_id)
 {
     qDebug() << "Saved to: " << profile_id + 1;
-    QString l_file_name("profile");
+    QString l_file_name("./profiles/profile");
     l_file_name.append(QString::number(profile_id + 1));
     l_file_name.append(QString(".json"));
     emit newProfile(l_file_name);

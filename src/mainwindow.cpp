@@ -13,70 +13,54 @@
 #include <QString>
 
 MainWindow::MainWindow()
-    : m_current_device_index(0)
+    : m_current_device_index(-1)
     , m_shortcuts_count(0)
-    , m_current_profile(-1)
     , m_cwd(QDir::currentPath())
 {
     QSize size = QDesktopWidget().availableGeometry(this).size() * 0.3;
     this->setFixedSize(size.height() * 1.3, size.width() * 0.9);
 
     m_manager = new InputManager(0);
-    getConnectedDevices();
-    m_manager->startListener();
 
     m_scaffold = new QStackedWidget;
     m_main = new QWidget;
     m_add_btn = new QPushButton("+");
-    // m_add_btn->setMaximumWidth(40);
 
     m_device_box = new QGroupBox("Devices");
-    m_device_box->setAlignment(Qt::AlignHCenter);
-
-    createDeviceBoxLayout();
-    m_device_box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     m_shortcuts_box_layout = new QStackedLayout;
     m_shortcuts_box = new QGroupBox;
     m_shortcuts_box->setAlignment(Qt::AlignHCenter);
     m_shortcuts_box->setFlat(true);
 
-    // set the initial device to the first registered gamepad and display the corresponding name und the qgroupbox
-    if (m_devices.size() > 0) {
-        m_current_device_index = 0;
-        createShortcutsBoxLayout();
-        QString title("Shortcuts - ");
-        title.append(m_devices.at(0)->getName());
-        m_shortcuts_box->setTitle(title);
-    } else
-        m_shortcuts_box->setTitle("Shortcuts");
+    m_profiles = new Profiles();
 
-    buttonHandler();
-
-    m_profiles = new Profiles;
     // connect(m_profiles, &Profiles::profileChanged, this, &QMainWindow::load);
     connect(m_profiles, &Profiles::profileChanged, this, &MainWindow::changeProfile);
     connect(m_profiles, &Profiles::newProfile, this, &MainWindow::save);
 
-    m_profiles->setMaximumWidth(40);
+    if (getConnectedDevices()) {
+        m_manager->startListener();
+        // m_current_device_index = 0;
 
-    // create the m_main m_layout for the m_main window
-    m_layout = new QGridLayout;
+        // set the initial device to the first registered gamepad and display the corresponding name und the qgroupbox
+        createShortcutsBoxLayout();
+        QString title("Shortcuts - ");
+        title.append(m_devices.at(0)->getName());
+        m_shortcuts_box->setTitle(title);
 
-    m_layout->addWidget(m_device_box, 0, 0, 1, 3);
-    m_layout->addWidget(m_profiles, 1, 0, 2, 1);
-    m_layout->addWidget(m_shortcuts_box, 1, 1, 1, 2);
-    m_layout->addWidget(m_profiles->getSaveButton(), 3, 0, 1, 1);
-    // m_layout->addWidget(m_add_btn, 1, 3, 3, 1);
-    m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
+        load(QString("save.json"));
+    } else {
+        m_shortcuts_box->setTitle("Shortcuts");
+        // m_add_btn->setDisabled(true);
+        // m_profiles->setDisabled(true);
+    }
 
-    m_main->setLayout(m_layout);
-    m_scaffold->addWidget(m_main);
-    setCentralWidget(m_scaffold);
+    // m_add_btn->setMaximumWidth(40);
 
-    load(QString("save.json"));
-    // load(QString("profile").append(QString::number(m_current_profile).append(QString(".json"))));
-    m_profiles->handleProfile(m_current_profile);
+    buttonHandler();
+
+    initUI();
 
     for (auto device : m_devices) {
         m_shortcuts_count += device->getShortcuts().size();
@@ -107,6 +91,24 @@ MainWindow::~MainWindow()
 
 void MainWindow::initUI()
 {
+    m_device_box->setAlignment(Qt::AlignHCenter);
+    createDeviceBoxLayout();
+    m_device_box->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    m_profiles->setMaximumWidth(40);
+    // create the m_main m_layout for the m_main window
+    m_layout = new QGridLayout;
+
+    m_layout->addWidget(m_device_box, 0, 0, 1, 3);
+    m_layout->addWidget(m_profiles, 1, 0, 2, 1);
+    m_layout->addWidget(m_shortcuts_box, 1, 1, 1, 2);
+    m_layout->addWidget(m_profiles->getSaveButton(), 3, 0, 1, 1);
+    // m_layout->addWidget(m_add_btn, 1, 3, 3, 1);
+    m_layout->addWidget(m_add_btn, 3, 1, 1, 2);
+
+    m_main->setLayout(m_layout);
+    m_scaffold->addWidget(m_main);
+    setCentralWidget(m_scaffold);
 }
 
 void MainWindow::createLayout()
@@ -163,9 +165,10 @@ void MainWindow::buttonHandler()
     }
 }
 
-void MainWindow::getConnectedDevices()
+bool MainWindow::getConnectedDevices()
 {
     DWORD dwResult;
+    bool success(false);
 
     for (DWORD i = 0; i < XUSER_MAX_COUNT; i++) {
         XINPUT_STATE state;
@@ -178,16 +181,20 @@ void MainWindow::getConnectedDevices()
         if (dwResult == ERROR_SUCCESS) {
             m_devices.push_back(new Gamepad(i, m_devices.size(), state));
             m_manager->addDevice(*(m_devices.end() - 1));
+            success = true;
         }
     }
+    return success;
 }
 
 void MainWindow::openNewShortcutWindow()
 {
-    CreateShortcutWindow* window = new CreateShortcutWindow(m_devices.at(m_current_device_index)->getID());
+    if (m_current_device_index != -1) {
+        CreateShortcutWindow* window = new CreateShortcutWindow(m_devices.at(m_current_device_index)->getID());
 
-    connect(window, &CreateShortcutWindow::resultReady, this, &MainWindow::addShortcut);
-    window->show();
+        connect(window, &CreateShortcutWindow::resultReady, this, &MainWindow::addShortcut);
+        window->show();
+    }
 }
 
 void MainWindow::deviceDisconnected(DWORD id)
@@ -236,18 +243,23 @@ void MainWindow::write(QJsonObject& json) const
 
 bool MainWindow::saveState() const
 {
-    QDir::setCurrent(m_cwd);
-    QFile saveFile("save.json");
+    if (m_current_device_index != -1) {
+        QDir::setCurrent(m_cwd);
+        QFile saveFile("save.json");
 
-    if (!saveFile.open(QIODevice::WriteOnly)) {
-        qWarning("Couldn't open save file.");
-        return false;
+        if (!saveFile.open(QIODevice::WriteOnly)) {
+            qWarning("Couldn't open save file.");
+            return false;
+        }
+        QJsonObject saveObject;
+
+        saveObject["profile"] = m_profiles->getCurrentProfile() + 1;
+        saveObject["device"] = m_current_device_index;
+        saveFile.write(QJsonDocument(saveObject).toJson());
+
+        return true;
     }
-    QJsonObject saveObject;
-    saveObject["profile"] = m_current_profile + 1;
-    saveFile.write(QJsonDocument(saveObject).toJson());
-
-    return true;
+    return false;
 }
 
 bool MainWindow::save(QString& file_name) const
@@ -273,22 +285,33 @@ bool MainWindow::load(QString& file_name)
 
     if (!loadFile.open(QIODevice::ReadOnly)) {
         qWarning() << "Couldn't load " << file_name << ".";
-        return false;
     }
 
     QByteArray saveData = loadFile.readAll();
-
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+    QJsonObject save = loadDoc.object();
 
-    if (m_current_profile < 0) {
-        QJsonObject save = loadDoc.object();
-        if (save.contains("profile") && save["profile"].isDouble()) {
-            m_current_profile = save["profile"].toInt() - 1;
-            m_profiles->setCurrentProfile(m_current_profile);
+    int l_current_profile = m_profiles->getCurrentProfile();
 
-            if(m_current_profile < 1 || m_current_profile > 4)
-                m_current_profile = 0;
-        }
+    // loads initial state
+    if (m_current_device_index < 0) {
+        // if (l_current_profile < 0) {
+        if (save.contains("profile") && save["profile"].isDouble())
+            l_current_profile = save["profile"].toInt() - 1;
+
+        if (save.contains("device") && save["device"].isDouble())
+            m_current_device_index = save["device"].toInt();
+
+        /*Fixes a faulty device entry in the save file.*/
+        if (m_current_device_index < 0 || m_current_device_index > m_devices.size() - 1)
+            m_current_device_index = 0;
+
+        /*Fixes a faulty profile entry in the save file.*/
+        if (l_current_profile < 1 || l_current_profile > 4)
+            l_current_profile = 0;
+
+        m_profiles->setCurrentProfile(l_current_profile);
+        m_profiles->handleProfile(l_current_profile);
     } else {
         read(loadDoc.object());
     }
@@ -298,19 +321,15 @@ bool MainWindow::load(QString& file_name)
 
 void MainWindow::changeProfile(unsigned int profile_id)
 {
-    // if (m_current_profile == profile_id)
-    //     return;
-    // else {
-    m_current_profile = profile_id;
+    if (m_devices.size() > 0) {
+        QString l_file_name("./profiles/profile");
+        l_file_name.append(QString::number(profile_id + 1));
+        l_file_name.append(QString(".json"));
 
-    QString l_file_name("profile");
-    l_file_name.append(QString::number(profile_id + 1));
-    l_file_name.append(QString(".json"));
+        m_devices[m_current_device_index]->clearShortcuts();
 
-    m_devices[m_current_device_index]->clearShortcuts();
-
-    load(l_file_name);
-    // }
+        load(l_file_name);
+    }
 }
 
 #include "moc_mainwindow.cpp"
